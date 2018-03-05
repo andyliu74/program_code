@@ -24,11 +24,17 @@ class EndPoint(object):
 	def socket(self):
 		return self._socket
 
+	@property
+	def fd(self):
+		return self._socket.fileno() if self._socket else 0
+
+	def good(self):
+		return True if self._socket else False
+
 	def create_socket(self, family=None, type=None):
-		self.socket_family = family if family is None else socket.AF_UNIX
+		self.socket_family = family if family is None else socket.AF_INET
 		self.socket_type = type if type is None else socket.SOCK_STREAM
 		self._socket = socket.socket(self.socket_family, self.socket_type)
-		self.setnonblocking()
 
 	def setnonblocking(self):
 		self._socket.setblocking(0)
@@ -48,7 +54,13 @@ class EndPoint(object):
 		pass
 
 	def setnodelay(self):
-		self._socket.settimeout(None)
+		if self._socket is not None \
+				and self._socket.family in (socket.AF_INET, socket.AF_INET6):
+			try:
+				self._socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 0)
+			except socket.error as e:
+				if e.errno != EINVAL:
+					raise
 
 	def bind(self, port, addr):
 		return self._socket.bind((addr, port))

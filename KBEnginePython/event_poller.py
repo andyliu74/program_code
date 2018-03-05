@@ -68,7 +68,15 @@ class EventPoller(object):
 		raise NotImplementedError()
 
 	def triggerRead(self, fd):
-		pass
+		handler = self._fd_read_handlers.get(fd, None)
+		if not handler:
+			return False
+		handler.handleInputNotification(fd)
+		return True
 
 	def triggerWrite(self, fd):
-		pass
+		handler = self._fd_write_handlers.get(fd, None)
+		if not handler:
+			return False
+		handler.handleOutputNotification(fd)
+		return True
