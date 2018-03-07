@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from channel import Channel
 from interfaces import InputNotificationHandler
 
 
@@ -14,6 +15,17 @@ class ListenerReceiver(InputNotificationHandler):
 		while tick_count < 256:
 			new_endpoint = self._endpoint.accept()
 			if new_endpoint:
-				pass
+				new_channel = Channel()
+				if not new_channel.initialize(self._networkinterface, self._endpoint):
+					print "ListenerReceiver::handleInputNotification: initialize() is failed!"
+					new_channel.destroy()
+					return
+				if not self._networkinterface.registerChannel(new_channel):
+					print "ListenerReceiver::handleInputNotification: registerChannel() is failed!"
+					new_channel.destroy()
+					return
 			else:
-				pass
+				if tick_count == 0:
+					print "PacketReceiver::handleInputNotification: accept endpoint()! channelSize="
+				break
+		return

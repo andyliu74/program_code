@@ -7,6 +7,7 @@ from event_poller import EventPoller
 class SelectPoller(EventPoller):
 
 	def __init__(self):
+		super(SelectPoller, self).__init__()
 		self.read_fds = set()
 		self.write_fds = set()
 		self.error_fds = set()

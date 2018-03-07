@@ -16,9 +16,9 @@ _DISCONNECTED = frozenset((ECONNRESET, ENOTCONN, ESHUTDOWN, ECONNABORTED, EPIPE,
 
 class EndPoint(object):
 
-	def __init__(self):
-		self._socket = None
-		self._address = None
+	def __init__(self, sock=None, addr=None):
+		self._socket = sock
+		self._address = addr
 
 	@property
 	def socket(self):
@@ -32,8 +32,8 @@ class EndPoint(object):
 		return True if self._socket else False
 
 	def create_socket(self, family=None, type=None):
-		self.socket_family = family if family is None else socket.AF_INET
-		self.socket_type = type if type is None else socket.SOCK_STREAM
+		self.socket_family = family if family is not None else socket.AF_INET
+		self.socket_type = type if type is not None else socket.SOCK_STREAM
 		self._socket = socket.socket(self.socket_family, self.socket_type)
 
 	def setnonblocking(self):
@@ -95,7 +95,7 @@ class EndPoint(object):
 			else:
 				raise
 		else:
-			return conn, addr
+			return EndPoint(conn, addr)
 
 	def send(self, data):
 		try:
