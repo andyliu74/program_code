@@ -1,0 +1,5 @@
+message CDevice
+{
+   optional int32 devId = 1;
+   optional string name = 2;
+}

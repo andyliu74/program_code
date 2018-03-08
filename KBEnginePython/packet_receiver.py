@@ -14,6 +14,7 @@ class PacketReceiver(InputNotificationHandler):
 	RECV_STATE_CONTINUE = 1
 
 	def __init__(self, endpoint=None, networkinterface=None):
+		self._packet = None
 		self._channel = None
 		self._endpoint = endpoint
 		self._networkinterface = networkinterface

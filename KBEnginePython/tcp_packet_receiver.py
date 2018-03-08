@@ -11,6 +11,9 @@ class TCPPacketReceiver(PacketReceiver):
 	def processFilteredPacket(self, channel, packet):
 		pass
 
+	def create_packet(self):
+		
+
 	def processRecv(self, expecting_packet):
 		channel = self.get_channel()
 		if not channel or channel.isCondemn():
