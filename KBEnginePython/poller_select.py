@@ -39,6 +39,8 @@ class SelectPoller(EventPoller):
 				self.triggerWrite(fd)
 
 	def processPendingEvents(self, max_wait):
+		assert self.read_fds or self.write_fds or self.error_fds
+		# print 'processPendingEvents:', self.read_fds, self.write_fds, self.error_fds
 		readable, writeable, errors = select.select(
 			self.read_fds, self.write_fds, self.error_fds, max_wait)
 		events = {}

@@ -7,6 +7,6 @@ from loginapp import LoginApp
 
 def main():
 	dispatcher = EventDispatcher()
-	ninterface = NetworkInterface(dispatcher, 8888, 8888, "", 8889, "")
+	ninterface = NetworkInterface(dispatcher, -1, -1, "", 8888, "")
 	login_app = LoginApp(dispatcher, ninterface, 1, 1)
 	login_app.run()

@@ -20,14 +20,15 @@ class PacketReceiver(InputNotificationHandler):
 		self._networkinterface = networkinterface
 
 	def handleInputNotification(self, fd):
+		print 'packet handleInputNotification'
 		if self.processRecv(True):
 			while self.processRecv(False):
 				pass
 		return 0
 
 	def processPacket(self, channel, packet):
-		if self._channel:
-			self._channel.onPacketReceived(packet.get_length())
+		if channel:
+			channel.onPacketReceived(packet.get_length())
 			if channel.get_filter():
 				return channel.get_filter().recv(channel, self, packet)
 		return self.processFilteredPacket(channel, packet)
@@ -59,5 +60,5 @@ class PacketReceiver(InputNotificationHandler):
 				return None
 			return self._channel
 		if self._endpoint and self._networkinterface:
-			return self._networkinterface.findChannel(self._endpoint.get_addr())
+			return self._networkinterface.findChannelByAddr(self._endpoint.get_addr())
 		return None

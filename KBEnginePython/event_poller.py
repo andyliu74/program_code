@@ -23,6 +23,10 @@ class EventPoller(object):
 		self._fd_read_handlers = {}
 		self._fd_write_handlers = {}
 
+	def destroy(self):
+		self._fd_read_handlers.clear()
+		self._fd_write_handlers.clear()
+
 	@staticmethod
 	def create():
 		from poller_select import SelectPoller
@@ -46,12 +50,14 @@ class EventPoller(object):
 	def deregisterForRead(self, fd):
 		try:
 			del self._fd_read_handlers[fd]
+			self.doDeregisterForRead(fd)
 		except:
 			pass
 
 	def deregisterForWrite(self, fd):
 		try:
 			del self._fd_write_handlers[fd]
+			self.doDeregisterForWrite(fd)
 		except:
 			pass
 
@@ -69,14 +75,8 @@ class EventPoller(object):
 
 	def triggerRead(self, fd):
 		handler = self._fd_read_handlers.get(fd, None)
-		if not handler:
-			return False
-		handler.handleInputNotification(fd)
-		return True
+		handler and handler.handleInputNotification(fd)
 
 	def triggerWrite(self, fd):
 		handler = self._fd_write_handlers.get(fd, None)
-		if not handler:
-			return False
-		handler.handleOutputNotification(fd)
-		return True
+		handler and handler.handleOutputNotification(fd)

@@ -11,9 +11,7 @@ def main():
 	end_point.create_socket()
 	end_point.connect(8888, '127.0.0.1')
 	if end_point.good():
-		end_point.send('Client')
-
-		print end_point.recv(100)
+		print end_point.send('ClientClient')
 
 
 if __name__ == "__main__":

@@ -15,8 +15,9 @@ class ListenerReceiver(InputNotificationHandler):
 		while tick_count < 256:
 			new_endpoint = self._endpoint.accept()
 			if new_endpoint:
+				print 'new_client'
 				new_channel = Channel()
-				if not new_channel.initialize(self._networkinterface, self._endpoint):
+				if not new_channel.initialize(self._networkinterface, new_endpoint):
 					print "ListenerReceiver::handleInputNotification: initialize() is failed!"
 					new_channel.destroy()
 					return
@@ -28,4 +29,5 @@ class ListenerReceiver(InputNotificationHandler):
 				if tick_count == 0:
 					print "PacketReceiver::handleInputNotification: accept endpoint()! channelSize="
 				break
+			tick_count += 1
 		return

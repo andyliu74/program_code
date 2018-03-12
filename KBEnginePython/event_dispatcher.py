@@ -1,5 +1,6 @@
 #-- coding: utf-8 -*-
 
+from endpoint import EndPoint
 from event_poller import EventPoller
 
 
@@ -49,16 +50,24 @@ class EventDispatcher(object):
 		self._break_processing = EventDispatcher.EVENT_DISPATCHER_STATUS_WAITING_BREAK_PROCESSING
 
 	def registerReadFileDescriptor(self, fd, handler):
-		return self._poller.registerForRead(fd, handler)
+		assert isinstance(fd, EndPoint)
+
+		return self._poller.registerForRead(fd.get_fd(), handler)
 
 	def deregisterReadFileDescriptor(self, fd):
-		self._poller.deregisterForRead(fd)
+		assert isinstance(fd, EndPoint)
+
+		self._poller.deregisterForRead(fd.get_fd())
 
 	def registerWriteFileDescriptor(self, fd, handler):
-		return self._poller.registerForWrite(fd, handler)
+		assert isinstance(fd, EndPoint)
+
+		return self._poller.registerForWrite(fd.get_fd(), handler)
 
 	def deregisterWriteFileDescriptor(self, fd):
-		self._poller.deregisterForWrite(fd)
+		assert isinstance(fd, EndPoint)
+
+		self._poller.deregisterForWrite(fd.get_fd())
 
 	def processNetwork(self, should_idle):
 		max_wait = self.calculateWait() if should_idle else 0.0
@@ -75,3 +84,8 @@ class EventDispatcher(object):
 
 	def calculateWait(self):
 		return self._maxwait
+
+	def destroy(self):
+		if self._poller:
+			self._poller.destroy()
+		self._poller = None

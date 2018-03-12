@@ -12,4 +12,4 @@ class ServerApp(object):
 		pass
 
 	def run(self):
-		pass
+		self._dispatcher and self._dispatcher.processUtilBreak()

@@ -6,4 +6,4 @@ from serverapp import ServerApp
 class LoginApp(ServerApp):
 
 	def __init__(self, dispatcher, ninterface, component_type, component_id):
-		pass
+		super(LoginApp, self).__init__(dispatcher, ninterface, component_type, component_id)

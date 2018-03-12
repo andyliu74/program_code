@@ -14,27 +14,63 @@ else:
 _DISCONNECTED = frozenset((ECONNRESET, ENOTCONN, ESHUTDOWN, ECONNABORTED, EPIPE, EBADF))
 
 
+class EndPointClosedException(Exception):
+	pass
+
+
+class Address(object):
+
+	def __init__(self, ip, port):
+		self._ip = ip
+		self._port = port
+
+	@property
+	def ip(self):
+		return self._ip
+
+	@property
+	def port(self):
+		return self._port
+
+	@ip.setter
+	def ip(self, ip):
+		self._ip = ip
+
+	@port.setter
+	def port(self, port):
+		self._port = port
+
+	def __str__(self):
+		return (self._ip, self._port)
+
+	def __repr__(self):
+		return (self._ip, self._port)
+
+
 class EndPoint(object):
 
 	def __init__(self, sock=None, addr=None):
 		self._socket = sock
 		self._address = addr
+		self._socket_family = None
+		self._socket_type = None
 
-	@property
-	def socket(self):
+	def get_socket(self):
 		return self._socket
 
-	@property
-	def fd(self):
+	def get_fd(self):
 		return self._socket.fileno() if self._socket else 0
+
+	def get_addr(self):
+		return self._address
 
 	def good(self):
 		return True if self._socket else False
 
 	def create_socket(self, family=None, type=None):
-		self.socket_family = family if family is not None else socket.AF_INET
-		self.socket_type = type if type is not None else socket.SOCK_STREAM
-		self._socket = socket.socket(self.socket_family, self.socket_type)
+		self._socket_family = family if family is not None else socket.AF_INET
+		self._socket_type = type if type is not None else socket.SOCK_STREAM
+		self._socket = socket.socket(self._socket_family, self._socket_type)
 
 	def setnonblocking(self):
 		self._socket.setblocking(0)
@@ -62,8 +98,9 @@ class EndPoint(object):
 				if e.errno != EINVAL:
 					raise
 
-	def bind(self, port, addr):
-		return self._socket.bind((addr, port))
+	def bind(self, ip, port):
+		self._address = Address(ip, port)
+		self._socket.bind((ip, port))
 
 	def listen(self, backlog = 5):
 		self.accepting = True
@@ -86,7 +123,7 @@ class EndPoint(object):
 
 	def accept(self):
 		try:
-			conn, addr = self.socket.accept()
+			conn, addr = self._socket.accept()
 		except TypeError:
 			return None
 		except socket.error as why:
@@ -99,31 +136,34 @@ class EndPoint(object):
 
 	def send(self, data):
 		try:
-			result = self.socket.send(data)
+			result = self._socket.send(data)
 			return result
 		except socket.error, why:
 			if why.args[0] == EWOULDBLOCK:
 				return 0
 			elif why.args[0] in _DISCONNECTED:
-				self.handle_close()
-				return 0
+				raise EndPointClosedException
 			else:
 				raise
 
 	def recv(self, buffer_size):
 		try:
-			data = self.socket.recv(buffer_size)
+			data = self._socket.recv(buffer_size)
 			if not data:
 				# a closed connection is indicated by signaling
 				# a read condition, and having recv() return 0.
-				self.handle_close()
-				return ''
+				raise EndPointClosedException
 			else:
 				return data
 		except socket.error, why:
 			# winsock sometimes raises ENOTCONN
 			if why.args[0] in _DISCONNECTED:
-				self.handle_close()
-				return ''
+				raise EndPointClosedException
 			else:
 				raise
+
+	def close(self):
+		try:
+			self._socket and self._socket.close()
+		except:
+			pass
