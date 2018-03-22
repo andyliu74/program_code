@@ -1,0 +1,13 @@
+<div class="book">
+  <h3 class="book_title">{{ book["title"] }}</h3>
+  <a href="{{book['alt']}}" target="_blank"><p>点击查看详情</p></a>
+  {% if book["subtitle"] != "" %}
+    <h4 class="book_subtitle">{{ book["subtitle"] }}</h4>
+  {% end %}
+  <img src="{{ book["images"]["large"] }}" class="book_image"/>
+  <div class="book_details">
+    <div class="book_date_released">Released: {{ book["pubdate"]}}</div>    
+    <h5>Description:</h5>
+    <div class="book_body">{% raw book["summary"] %}</div>
+  </div>
+</div>
