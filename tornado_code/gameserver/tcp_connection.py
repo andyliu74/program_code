@@ -49,18 +49,15 @@ class TCPConnection(object):
 		self._rpc_channel = None
 
 	def _on_receive_data(self, data):
-		print '_on_receive_data ', data
 		self._rpc_channel and self._rpc_channel.receive(data)
 
 	def _on_write_complete(self):
-		print '_on_write_complete'
 		if self._write_callback is not None:
 			callback = self._write_callback
 			self._write_callback = None
 			callback()
 
 	def _on_connection_close(self):
-		print '_on_connection_close'
 		if self._close_callback is not None:
 			callback = self._close_callback
 			self._close_callback = None

@@ -12,13 +12,15 @@ class TcpServer(TCPServer):
 		super(TcpServer, self).__init__(io_loop=None)
 		self._port = port
 		self._service_factory = service_factory
+		self._connections = {}
 		self._entities = {}
 
 	def handle_stream(self, stream, address):
 		new_conn = TCPConnection(stream, address, self.io_loop)
+		new_entity = Entity()
 		RpcChannel(new_conn, self._service_factory())
-		new_entity = Entity(new_conn)
 		self._entities[address] = new_entity
+		self._connections[address] = new_conn
 		new_conn.start()
 
 	def start(self):

@@ -89,6 +89,9 @@ class RpcChannel(service.RpcChannel):
 			self.disconnect()
 			return
 
+		if not self._rpc_service:
+			return
+
 		for method_descriptor, request in rpc_calls:
-			self._rpc_service and self._rpc_service.CallMethod(method_descriptor, self._rpc_controller, request, callback=None)
+			self._rpc_service.CallMethod(method_descriptor, self._rpc_controller, request, None)
 

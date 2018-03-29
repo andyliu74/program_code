@@ -8,7 +8,6 @@ from proto.rpc_pb2 import IServerService
 class ServerService(IServerService):
 
 	def call_server(self, rpc_controller, request, callback):
-		print 'call_server:'
 		print rpc_controller.rpc_channel
 		print request.method_name
 		method_params = BSON(request.request_proto).decode()
