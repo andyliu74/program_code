@@ -12,7 +12,6 @@ class TCPConnection(object):
 
 		self._close_callback = None
 		self._write_callback = None
-		self._method_callback = None
 
 		self.stream.set_close_callback(self._on_connection_close)
 		self._receive_callback = stack_context.wrap(self._on_receive_data)
@@ -31,9 +30,6 @@ class TCPConnection(object):
 	def set_close_callback(self, callback):
 		self._close_callback = stack_context.wrap(callback)
 
-	def set_method_callback(self, callback):
-		self._method_callback = stack_context.wrap(callback)
-
 	def get_rpc_channel(self):
 		return self._rpc_channel
 
@@ -42,11 +38,6 @@ class TCPConnection(object):
 
 	def disconnect(self):
 		self.stream.close()
-		self._write_callback = None
-		self._close_callback = None
-		self._method_callback = None
-		self._rpc_channel and self._rpc_channel.on_disconnected()
-		self._rpc_channel = None
 
 	def _on_receive_data(self, data):
 		self._rpc_channel and self._rpc_channel.receive(data)
@@ -58,8 +49,13 @@ class TCPConnection(object):
 			callback()
 
 	def _on_connection_close(self):
+		self._write_callback = None
+
 		if self._close_callback is not None:
 			callback = self._close_callback
 			self._close_callback = None
 			callback()
-		self.disconnect()
+
+		if self._rpc_channel:
+			self._rpc_channel.on_disconnected()
+		self._rpc_channel = None

@@ -62,10 +62,14 @@ class RpcChannel(service.RpcChannel):
 		self._conn and self._conn.set_rpc_channel(self)
 		self._rpc_service = rpc_service
 		self._rpc_controller = RpcController(self)
-		self._rpc_parser = RpcParser(self._rpc_service, RpcChannel.HEAD_FMT, RpcChannel.INDEX_FMT)
+
+		self._rpc_parser = None
+		if rpc_service is not None:
+			self._rpc_parser = RpcParser(rpc_service, RpcChannel.HEAD_FMT, RpcChannel.INDEX_FMT)
 
 	def set_rpc_service(self, rpc_service):
 		self._rpc_service = rpc_service
+		self._rpc_parser = RpcParser(rpc_service, RpcChannel.HEAD_FMT, RpcChannel.INDEX_FMT)
 
 	def on_disconnected(self):
 		self._conn = None
